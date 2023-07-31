@@ -2,18 +2,21 @@ import subprocess
 import speech_recognition as sr
 from light import switch_off, switch_on
 from volume import increase_vol, decrease_vol
+from notifications import notification
 import openai
 import threading
+import os
+
 
 # Replace 'YOUR_OPENAI_API_KEY' with your actual API key
-openai.api_key = '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'
+openai.api_key = os.getenv('openai_key')
 
 def openai_ask(question):
     print('Asking ChatGPT...')
     response = openai.Completion.create(
         engine="text-davinci-003",  # Choose the language model you prefer
         prompt=question,
-        max_tokens=50  # You can adjust the response length as needed
+        max_tokens=50  # Adjust the response length as needed
     )
     answer = response['choices'][0]['text'].strip()
     return answer
@@ -70,6 +73,8 @@ def listen():
                         increase_vol()
                     elif 'decrease volume' in text.lower():
                         decrease_vol()
+                    elif 'remember' in text.lower():
+                        notification()
 
             except sr.UnknownValueError:
                 print("Sorry, I couldn't understand that.")

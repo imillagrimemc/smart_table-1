@@ -1,2 +1,2 @@
-def openai():
-    print('let me think')
+def notification():
+    print('yes sir')
