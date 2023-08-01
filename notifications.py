@@ -1,46 +1,52 @@
-import os
-from dotenv import load_dotenv
-import psycopg2
+import sqlite3
+from datetime import datetime
 
 
-# Load environment variables from .env file
-load_dotenv()
-# PostgreSQL database settings
-DATABASE_NAME = os.getenv("DATABASE_NAME")
-DATABASE_USER = os.getenv("DATABASE_USER")
-DATABASE_PASS = os.getenv("DATABASE_PASS")
+def create_table():
+    # Step 1: Establish a connection to the database (creates the database if it doesn't exist)
+    conn = sqlite3.connect("water.db")
 
-# OpenAI API key
-openai_key = os.getenv("OPENAI_API_KEY")
+    # Step 2: Create a cursor
+    cursor = conn.cursor()
 
-def save_to_postgres(text):
-    try:
-        # Replace the connection parameters with your PostgreSQL database credentials
-        connection = psycopg2.connect(
-            host="localhost",
-            database=DATABASE_NAME,
-            user=DATABASE_USER,
-            password=DATABASE_PASS
+    # Step 3: Execute SQL to create the table
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS Data (
+            id INTEGER PRIMARY KEY,
+            message TEXT,
+            event_date DATETIME
         )
-        cursor = connection.cursor()
+    """)
 
-        # Create the table if it doesn't exist
-        cursor.execute("CREATE TABLE IF NOT EXISTS recognized_data (text TEXT)")
+    # Step 4: Commit the changes
+    conn.commit()
 
-        # Insert the recognized text into the database
-        cursor.execute("INSERT INTO recognized_data (text) VALUES (%s)", (text,))
-        connection.commit()
-        print("Text saved to the PostgreSQL database.")
+    # Step 5: Close the cursor and connection
+    cursor.close()
+    conn.close()
 
-    except Exception as e:
-        print(f"Error saving to PostgreSQL database: {e}")
-    finally:
-        if connection:
-            cursor.close()
-            connection.close()
 
-def notification(text):
-    print('yes sir')
-    save_to_postgres(text)
+def insert_data(message, event_date):
+    # Step 1: Establish a connection to the database
+    conn = sqlite3.connect("water.db")
 
-    
+    # Step 2: Create a cursor
+    cursor = conn.cursor()
+
+    # Step 3: Execute SQL to insert data
+    cursor.execute("INSERT INTO Data (message, event_date) VALUES (?, ?)", (message, event_date))
+
+    # Step 4: Commit the changes
+    conn.commit()
+
+    # Step 5: Close the cursor and connection
+    cursor.close()
+    conn.close()
+
+
+def run(message):
+    # Create the table (you only need to do this once)
+    create_table()
+    now = datetime.now()
+    # Insert data into the table
+    insert_data(message=message, event_date=now)
