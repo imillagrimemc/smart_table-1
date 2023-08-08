@@ -1,10 +1,22 @@
-import subprocess
+import numpy as np
+import sounddevice as sd
+import noisereduce as nr
 import speech_recognition as sr
+import subprocess
 from light import switch_off, switch_on
 from notifications import run
 from volume import increase_vol, decrease_vol
 
-def listen():
+from gtts import gTTS
+
+# Function for text-to-speech
+def speak(text):
+    tts = gTTS(text=text, lang='en')
+    tts.save('output.mp3')
+    subprocess.run(["mpg321", "output.mp3"])
+
+# Function for speech recognition
+def recognize_speech():
     recognizer = sr.Recognizer()
 
     with sr.Microphone() as source:
@@ -18,34 +30,37 @@ def listen():
         text = recognizer.recognize_google(audio)
         return text
     except sr.UnknownValueError:
-        print("Sorry, I couldn't understand that.")
+        print("Could not understand the audio.")
     except sr.RequestError as e:
         print(f"Error accessing the Google Web Speech API: {e}")
 
     return None
-
 
 if __name__ == "__main__":
     remember_mode = False
 
     while True:
         try:
-            result = listen()
+            result = recognize_speech()
 
             if result:
                 print("You said:")
                 print(result)
                 print(type(result))
                 if 'switch on' in result.lower():
-                    switch_on()
+                    # GPIO.output(11, 0)
+                    print('lights are switched on')
                 elif 'switch off' in result.lower():
-                    switch_off()
+                    # GPIO.output(11, 1)
+                    print('lights are switched off')
                 elif 'increase volume' in result.lower():
                     increase_vol()
                 elif 'decrease volume' in result.lower():
                     decrease_vol()
-                
-                    
+
+                # Perform text-to-speech for recognized text
+                speak(result)
+
                 if 'remember' in result.lower():
                     print("Remember mode activated.")
                     remember_mode = True
@@ -55,11 +70,9 @@ if __name__ == "__main__":
                     user_question = result  # Store the user's question for later use
                     # print("You talked:")
                     # print(result)
-                    # print(type(result))
+                    print(type(result))
                     remember_mode = False  # Disable help mode after capturing the question
                     run(message=result)
-
-
 
         except KeyboardInterrupt:
             print("Exiting...")
