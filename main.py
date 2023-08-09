@@ -6,6 +6,7 @@ import subprocess
 from light import switch_off, switch_on
 from notifications import run
 from volume import increase_vol, decrease_vol
+from where_is import where_is
 
 from gtts import gTTS
 
@@ -13,11 +14,13 @@ from gtts import gTTS
 # GPIO.setup(11, GPIO.OUT)
 # GPIO.output(11, 1)
 
+
 # Function for text-to-speech
 def speak(text):
-    tts = gTTS(text=text, lang='en')
-    tts.save('output.mp3')
+    tts = gTTS(text=text, lang="en")
+    tts.save("output.mp3")
     subprocess.run(["mpg321", "output.mp3"])
+
 
 # Function for speech recognition
 def recognize_speech():
@@ -61,6 +64,7 @@ def listen():
 
     return None
 
+
 def main():
     sample_rate = 44100
     duration = 5
@@ -92,6 +96,7 @@ def main():
     except sr.RequestError as e:
         print("Error accessing the Google Web Speech API: {0}".format(e))
 
+
 if __name__ == "__main__":
     remember_mode = False
 
@@ -103,32 +108,38 @@ if __name__ == "__main__":
                 print("You said:")
                 print(result)
                 print(type(result))
-                if 'switch on' in result.lower():
+                if "switch on" in result.lower():
                     # GPIO.output(11, 0)
-                    print('lights are switched on')
-                elif 'switch off' in result.lower():
+                    print("lights are switched on")
+                elif "switch off" in result.lower():
                     # GPIO.output(11, 1)
-                    print('lights are switched off')
-                elif 'increase volume' in result.lower():
+                    print("lights are switched off")
+                elif "increase volume" in result.lower():
                     increase_vol()
-                elif 'decrease volume' in result.lower():
+                elif "decrease volume" in result.lower():
                     decrease_vol()
 
-                # Perform text-to-speech for recognized text
-                speak(result)
-
-                if 'remember' in result.lower():
+                if "remember" in result.lower():
                     print("Remember mode activated.")
                     remember_mode = True
                     continue
-
+            
+                # print("remember_mode", remember_mode)
                 if remember_mode:
                     user_question = result  # Store the user's question for later use
-                    # print("You talked:")
-                    # print(result)
+                    print("You talked:")
+                    print(result)
                     print(type(result))
                     remember_mode = False  # Disable help mode after capturing the question
                     run(message=result)
+
+                if "where is" in result.lower():
+                    print("Notification mode activated.")
+                    notification = where_is()
+                    print(notification)
+
+
+                speak(result)
 
         except KeyboardInterrupt:
             print("Exiting...")
