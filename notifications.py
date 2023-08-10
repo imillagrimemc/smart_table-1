@@ -60,6 +60,7 @@ def insert_data(message, event_date):
 
 def run(message):
     # Create the table (you only need to do this once)
+
     create_table()
     now = datetime.now()
     # Insert data into the table

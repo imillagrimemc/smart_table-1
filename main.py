@@ -7,19 +7,24 @@ from light import switch_off, switch_on
 from notifications import run
 from volume import increase_vol, decrease_vol
 from where_is import where_is
-
+from music import music_function
 from gtts import gTTS
+import pyttsx3
 
 # GPIO.setmode(GPIO.BOARD)
 # GPIO.setup(11, GPIO.OUT)
 # GPIO.output(11, 1)
 
 
+# Create a text-to-speech engine
+engine = pyttsx3.init()
+
+
 # Function for text-to-speech
 def speak(text):
     tts = gTTS(text=text, lang="en")
     tts.save("output.mp3")
-    subprocess.run(["mpg321", "output.mp3"])
+    # subprocess.run(["mpg321", "output.mp3"])
 
 
 # Function for speech recognition
@@ -123,23 +128,25 @@ if __name__ == "__main__":
                     print("Remember mode activated.")
                     remember_mode = True
                     continue
-            
+
                 # print("remember_mode", remember_mode)
                 if remember_mode:
                     user_question = result  # Store the user's question for later use
                     print("You talked:")
                     print(result)
                     print(type(result))
-                    remember_mode = False  # Disable help mode after capturing the question
+                    remember_mode = (
+                        False  # Disable help mode after capturing the question
+                    )
                     run(message=result)
 
                 if "where is" in result.lower():
                     print("Notification mode activated.")
                     notification = where_is()
-                    print(notification)
+                    print("notification: " , notification)
+                    speak(notification)
+                    music_function()
 
-
-                speak(result)
 
         except KeyboardInterrupt:
             print("Exiting...")
