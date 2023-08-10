@@ -1,6 +1,6 @@
 import openai
 
-openai.api_key = "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"
+openai.api_key = "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"
 
 
 def gpt_function(query):
@@ -18,4 +18,22 @@ def gpt_function(query):
     return f"{chat_response}"
 
 
-print(gpt_function(query = "I'm going to Tashkent now"))
+# print(gpt_function(query = "I'm going to Tashkent now"))
+
+
+def gpt_answer(query: str):
+    completion = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {
+                "role": "user",
+                "content": query,
+            }
+        ],
+    )
+    chat_response = completion.choices[0].message.content
+    print(f"ChatGPT answer: {chat_response}")
+    return f"{chat_response}"
+
+
+# print(gpt_answer(query="How many states in the USA?"))

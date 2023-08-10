@@ -3,13 +3,13 @@ import sounddevice as sd
 import noisereduce as nr
 import speech_recognition as sr
 import subprocess
-from light import switch_off, switch_on
 from notifications import run
 from volume import increase_vol, decrease_vol
 from where_is import where_is
 from music import music_function
 from gtts import gTTS
 import pyttsx3
+from gpt import gpt_answer
 
 # GPIO.setmode(GPIO.BOARD)
 # GPIO.setup(11, GPIO.OUT)
@@ -104,6 +104,7 @@ def main():
 
 if __name__ == "__main__":
     remember_mode = False
+    help_mode = False
 
     while True:
         try:
@@ -143,10 +144,27 @@ if __name__ == "__main__":
                 if "where is" in result.lower():
                     print("Notification mode activated.")
                     notification = where_is()
-                    print("notification: " , notification)
+                    print("notification: ", notification)
                     speak(notification)
                     music_function()
 
+                if "help me" in result.lower():
+                    print(
+                        "Help mode activated. Please ask a question within 5 seconds."
+                    )
+                    help_mode = True
+                    continue
+
+                if help_mode:
+                    user_question = result  # Store the user's question for later use
+                    print("You asked:")
+                    print(result)
+                    # print(type(result))
+                    help_mode = False  # Disable help mode after capturing the question
+                    answer = gpt_answer(query=user_question)
+                    speak(answer)
+                    music_function()
+                    
 
         except KeyboardInterrupt:
             print("Exiting...")

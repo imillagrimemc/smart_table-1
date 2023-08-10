@@ -67,3 +67,5 @@ def run(message):
     paraphrase = gpt_function(query=message)
     print("paraphrase:", paraphrase)
     insert_data(message=paraphrase, event_date=now)
+
+
