@@ -10,6 +10,7 @@ from music import music_function
 from gtts import gTTS
 import pyttsx3
 from gpt import gpt_answer
+from dht import runs
 
 # GPIO.setmode(GPIO.BOARD)
 # GPIO.setup(11, GPIO.OUT)
@@ -155,6 +156,9 @@ if __name__ == "__main__":
                     help_mode = True
                     continue
 
+                if "temperature" in result.lower():
+                    temperature = runs()
+
                 if help_mode:
                     user_question = result  # Store the user's question for later use
                     print("You asked:")
@@ -164,7 +168,6 @@ if __name__ == "__main__":
                     answer = gpt_answer(query=user_question)
                     speak(answer)
                     music_function()
-                    
 
         except KeyboardInterrupt:
             print("Exiting...")
