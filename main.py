@@ -175,3 +175,6 @@ if __name__ == "__main__":
         except Exception as e:
             # Redirect ALSA error messages to /dev/null (suppress them)
             subprocess.run(["python3", "your_script.py"], stderr=subprocess.DEVNULL)
+
+
+# need to check temperature command
