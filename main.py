@@ -3,6 +3,8 @@ import sounddevice as sd
 import noisereduce as nr
 import speech_recognition as sr
 import subprocess
+import playsound
+import pygame
 from notifications import run
 from volume import increase_vol, decrease_vol
 from where_is import where_is
@@ -10,7 +12,7 @@ from music import music_function
 from gtts import gTTS
 import pyttsx3
 from gpt import gpt_answer
-from dht import runs
+# from dht import runs
 
 # GPIO.setmode(GPIO.BOARD)
 # GPIO.setup(11, GPIO.OUT)
@@ -19,6 +21,8 @@ from dht import runs
 
 # Create a text-to-speech engine
 engine = pyttsx3.init()
+pygame.mixer.init()
+
 
 
 # Function for text-to-speech
@@ -50,11 +54,18 @@ def recognize_speech():
     return None
 
 
+def play_peep_sound():
+    peep_sound_path = "peep.wav"  # Assuming peep.wav is located in the project folder
+    peep_sound = pygame.mixer.Sound(peep_sound_path)
+    peep_sound.play()
+
+
 def listen():
     recognizer = sr.Recognizer()
 
     with sr.Microphone() as source:
         print("Listening...")
+        play_peep_sound()  # Play the peep sound
         recognizer.adjust_for_ambient_noise(source)
         audio = recognizer.listen(source, timeout=5)
         print(audio)
@@ -177,4 +188,3 @@ if __name__ == "__main__":
             subprocess.run(["python3", "your_script.py"], stderr=subprocess.DEVNULL)
 
 
-# need to check temperature command
