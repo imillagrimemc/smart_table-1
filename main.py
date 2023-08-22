@@ -1,6 +1,6 @@
 import numpy as np
 import sounddevice as sd
-import noisereduce as nr
+# import noisereduce as nr
 import speech_recognition as sr
 import subprocess
 import playsound
@@ -95,13 +95,13 @@ def main():
     print("Audio recorded. Processing...")
 
     # Applying noise reduction algorithm
-    denoised_audio = nr.reduce_noise(y=recording.flatten(), sr=sample_rate)
+    # denoised_audio = nr.reduce_noise(y=recording.flatten(), sr=sample_rate)
 
     # Creating a Recognizer object
     recognizer = sr.Recognizer()
 
     # Using denoised audio for speech recognition
-    with sr.AudioData(denoised_audio.tobytes(), sample_rate, 2) as source:
+    with sr.AudioData(sample_rate, 2) as source:
         print("Speak something:")
         audio = recognizer.listen(source)
 
@@ -168,7 +168,8 @@ if __name__ == "__main__":
                     continue
 
                 if "temperature" in result.lower():
-                    temperature = runs()
+                    # temperature = runs()
+                    pass
 
                 if help_mode:
                     user_question = result  # Store the user's question for later use
