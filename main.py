@@ -12,11 +12,11 @@ from music import music_function
 from gtts import gTTS
 import pyttsx3
 from gpt import gpt_answer
-# from dht import runs
+from dht import runs
 
-# GPIO.setmode(GPIO.BOARD)
-# GPIO.setup(11, GPIO.OUT)
-# GPIO.output(11, 1)
+GPIO.setmode(GPIO.BOARD)
+GPIO.setup(11, GPIO.OUT)
+GPIO.output(11, 1)
 
 
 # Create a text-to-speech engine
@@ -73,7 +73,7 @@ def listen():
     try:
         print("Recognizing...")
         text = recognizer.recognize_google(audio)
-        return text
+        return text  
     except sr.UnknownValueError:
         print("Sorry, I couldn't understand that.")
     except sr.RequestError as e:
@@ -168,8 +168,8 @@ if __name__ == "__main__":
                     continue
 
                 if "temperature" in result.lower():
-                    # temperature = runs()
-                    pass
+                    temperature = runs()
+                    
 
                 if help_mode:
                     user_question = result  # Store the user's question for later use
