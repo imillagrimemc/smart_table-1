@@ -1,122 +1,57 @@
-import numpy as np
-import sounddevice as sd
-import noisereduce as nr
 import speech_recognition as sr
 import subprocess
-import playsound
-import pygame
-from notifications import run
-from volume import increase_vol, decrease_vol
-from where_is import where_is
-from music import music_function
+import sounddevice as sd
+import soundfile as sf
 from gtts import gTTS
-import pyttsx3
-from gpt import gpt_answer
-from dht import runs
-
-GPIO.setmode(GPIO.BOARD)
-GPIO.setup(11, GPIO.OUT)
-GPIO.output(11, 1)
-
-
-# Create a text-to-speech engine
-engine = pyttsx3.init()
-pygame.mixer.init()
+# from gpt import gpt_answer
+# from dht import runs
+# from notifications import run
+# from volume import increase_vol, decrease_vol
+# from where_is import where_is
+# from music import music_function
 
 
+# GPIO.setmode(GPIO.BOARD)
+# GPIO.setup(11, GPIO.OUT)
+# GPIO.output(11, 1)
 
-# Function for text-to-speech
+
+# Функция Текст-в-речь
 def speak(text):
     tts = gTTS(text=text, lang="en")
     tts.save("output.mp3")
-    # subprocess.run(["mpg321", "output.mp3"])
-
-
-# Function for speech recognition
-def recognize_speech():
-    recognizer = sr.Recognizer()
-
-    with sr.Microphone() as source:
-        print("Listening...")
-        recognizer.adjust_for_ambient_noise(source)
-        audio = recognizer.listen(source, timeout=5)
-        print(audio)
-
-    try:
-        print("Recognizing...")
-        text = recognizer.recognize_google(audio)
-        return text
-    except sr.UnknownValueError:
-        print("Sorry, I couldn't understand that.")
-    except sr.RequestError as e:
-        print(f"Error accessing the Google Web Speech API: {e}")
-
-    return None
-
+    subprocess.run(["mpg321", "output.mp3"])
 
 def play_peep_sound():
-    peep_sound_path = "peep.wav"  # Assuming peep.wav is located in the project folder
-    peep_sound = pygame.mixer.Sound(peep_sound_path)
-    peep_sound.play()
+    peep_sound_path = "peep.wav"  # Путь к файлу с звуком
 
+    # Загрузите аудиофайл с использованием soundfile
+    peep_data, sample_rate = sf.read(peep_sound_path)
 
-def listen():
-    recognizer = sr.Recognizer()
-
-    with sr.Microphone() as source:
-        print("Listening...")
-        play_peep_sound()  # Play the peep sound
-        recognizer.adjust_for_ambient_noise(source)
-        audio = recognizer.listen(source, timeout=5)
-        print(audio)
-
-    try:
-        print("Recognizing...")
-        text = recognizer.recognize_google(audio)
-        return text  
-    except sr.UnknownValueError:
-        print("Sorry, I couldn't understand that.")
-    except sr.RequestError as e:
-        print(f"Error accessing the Google Web Speech API: {e}")
-
-    return None
-
-
-def main():
-    sample_rate = 44100
-    duration = 5
-
-    print("Recording audio...")
-
-    # Recording audio from the microphone
-    recording = sd.rec(int(sample_rate * duration), samplerate=sample_rate, channels=1)
+    # Воспроизведите аудиофайл с использованием sounddevice
+    sd.play(peep_data, sample_rate)
     sd.wait()
 
-    print("Audio recorded. Processing...")
+def listen():
+    r = sr.Recognizer()
 
-    # Applying noise reduction algorithm
-    denoised_audio = nr.reduce_noise(y=recording.flatten(), sr=sample_rate)
+    with sr.Microphone() as source:
+        print("Скажите что-нибудь:")
+        audio = r.listen(source)
 
-    # Creating a Recognizer object
-    recognizer = sr.Recognizer()
-
-    # Using denoised audio for speech recognition
-    with sr.AudioData(denoised_audio.tobytes(), sample_rate, 2) as source:
-        print("Speak something:")
-        audio = recognizer.listen(source)
-
-    # Trying to recognize the voice command
     try:
-        print("You said: " + recognizer.recognize_google(audio, language="en-US"))
+        text = r.recognize_google(audio, language="en-en")
+        print("Вы сказали: " + text)
+        return text
     except sr.UnknownValueError:
-        print("Could not understand the audio.")
+        print("Речь не распознана")
     except sr.RequestError as e:
-        print("Error accessing the Google Web Speech API: {0}".format(e))
+        print("Ошибка при обращении к сервису распознавания речи: {0}".format(e))
+    return None
 
 
 if __name__ == "__main__":
     remember_mode = False
-    help_mode = False
 
     while True:
         try:
@@ -127,15 +62,17 @@ if __name__ == "__main__":
                 print(result)
                 print(type(result))
                 if "switch on" in result.lower():
+                    play_peep_sound()
                     # GPIO.output(11, 0)
                     print("lights are switched on")
                 elif "switch off" in result.lower():
+                    play_peep_sound()
                     # GPIO.output(11, 1)
                     print("lights are switched off")
-                elif "increase volume" in result.lower():
-                    increase_vol()
-                elif "decrease volume" in result.lower():
-                    decrease_vol()
+                # elif "increase volume" in result.lower():
+                #     increase_vol()
+                # elif "decrease volume" in result.lower():
+                #     decrease_vol()
 
                 if "remember" in result.lower():
                     print("Remember mode activated.")
@@ -143,22 +80,23 @@ if __name__ == "__main__":
                     continue
 
                 # print("remember_mode", remember_mode)
-                if remember_mode:
-                    user_question = result  # Store the user's question for later use
-                    print("You talked:")
-                    print(result)
-                    print(type(result))
-                    remember_mode = (
-                        False  # Disable help mode after capturing the question
-                    )
-                    run(message=result)
+                
+                # if remember_mode:
+                #     user_question = result  # Store the user's question for later use
+                #     print("You talked:")
+                #     print(result)
+                #     print(type(result))
+                #     remember_mode = (
+                #         False  # Disable help mode after capturing the question
+                #     )
+                #     run(message=result)
 
-                if "where is" in result.lower():
-                    print("Notification mode activated.")
-                    notification = where_is()
-                    print("notification: ", notification)
-                    speak(notification)
-                    music_function()
+                # if "where is" in result.lower():
+                #     print("Notification mode activated.")
+                #     notification = where_is()
+                #     print("notification: ", notification)
+                #     speak(notification)
+                #     music_function()
 
                 if "help me" in result.lower():
                     print(
@@ -167,25 +105,21 @@ if __name__ == "__main__":
                     help_mode = True
                     continue
 
-                if "temperature" in result.lower():
-                    temperature = runs()
-                    
+                # if "temperature" in result.lower():
+                #     temperature = runs()
 
-                if help_mode:
-                    user_question = result  # Store the user's question for later use
-                    print("You asked:")
-                    print(result)
-                    # print(type(result))
-                    help_mode = False  # Disable help mode after capturing the question
-                    answer = gpt_answer(query=user_question)
-                    speak(answer)
-                    music_function()
-
+                # if help_mode:
+                #     user_question = result  # Store the user's question for later use
+                #     print("You asked:")
+                #     print(result)
+                #     # print(type(result))
+                #     help_mode = False  # Disable help mode after capturing the question
+                #     answer = gpt_answer(query=user_question)
+                #     speak(answer)
+                #     music_function()
         except KeyboardInterrupt:
             print("Exiting...")
             break
         except Exception as e:
             # Redirect ALSA error messages to /dev/null (suppress them)
             subprocess.run(["python3", "your_script.py"], stderr=subprocess.DEVNULL)
-
-
